@@ -1,0 +1,51 @@
+Project Overview
+Front-End (Windows Desktop App in VB.NET)
+
+User Interface (UI) for creating forms.
+UI for submitting responses to forms.
+UI for viewing responses.
+Back-End
+
+Storage for forms and responses (e.g., SQLite, a local database, or an online service).
+API to interact with the storage (if using an online service).
+Tools and Technologies
+Visual Studio: For developing the Windows desktop app.
+VB.NET: For building the Windows Forms application.
+
+Step-by-Step Guide
+1. Setting Up the Project
+Create a new VB.NET Windows Forms Application in Visual Studio
+Open Visual Studio.
+Select "Create a new project."
+Choose "Windows Forms App (.NET Framework)" and select VB.NET as the language.
+Name your project and solution.
+2. Designing the User Interface
+Form Designer: Use the Visual Studio form designer to create the UI.
+Create a main form (MainForm) with buttons to navigate to different functionalities (e.g., "Create Form", "Submit Response", "View Responses").
+Create a form for creating new forms (CreateForm).
+Create a form for submitting responses (SubmitResponseForm).
+Create a form for viewing responses (ViewResponsesForm).
+
+Database Design
+
+Create a database with tables for storing forms and responses.
+Forms table: FormID, FormName, CreatedDate
+Questions table: QuestionID, FormID, QuestionText, QuestionType
+Responses table: ResponseID, FormID, ResponseDate
+Answers table: AnswerID, ResponseID, QuestionID, AnswerText
+4. Implementing the UI Logic
+MainForm
+
+Add buttons to navigate to CreateForm, SubmitResponseForm, and ViewResponsesForm.
+Implement button click events to open the respective forms.
+CreateForm
+
+Add controls to input form details and questions (e.g., text boxes, combo boxes for question types).
+
+SubmitResponseForm
+
+Add controls to select a form and input responses.
+
+ViewResponsesForm
+
+Add controls to select a form and view responses.
