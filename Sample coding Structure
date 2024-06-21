@@ -1,0 +1,19 @@
+Public Class MainForm
+    Private Sub btnCreateForm_Click(sender As Object, e As EventArgs) Handles btnCreateForm.Click
+        Dim createForm As New CreateForm()
+        createForm.Show()
+    End Sub
+
+    Private Sub btnSubmitResponse_Click(sender As Object, e As EventArgs) Handles btnSubmitResponse.Click
+        Dim submitResponseForm As New SubmitResponseForm()
+        submitResponseForm.Show()
+    End Sub
+
+    Private Sub btnViewResponses_Click(sender As Object, e As EventArgs) Handles btnViewResponses.Click
+        Dim viewResponsesForm As New ViewResponsesForm()
+        viewResponsesForm.Show()
+    End Sub
+End Class
+
+
+
