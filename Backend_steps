@@ -1,0 +1,109 @@
+To connect the above Windows Forms application with an Express backend, you will need to follow these steps:
+
+Set up an Express server for the backend to handle form data storage and retrieval.
+Modify the VB.NET application to make HTTP requests to the Express server for CRUD operations.
+Step 1: Setting Up the Express Server
+Initialize the Express Server:
+
+Create a new folder for your Express server and navigate to it in your terminal.
+Run npm init -y to initialize a new Node.js project.
+Install Express and SQLite3 by running npm install express sqlite3.
+Create the Express Server:
+
+Create a new file called server.js and add the following code:
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const bodyParser = require('body-parser');
+const app = express();
+const port = 3000;
+
+// Middleware
+app.use(bodyParser.json());
+
+// Database setup
+const db = new sqlite3.Database('./forms.db');
+
+// Create tables if they don't exist
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS Forms (
+    FormID INTEGER PRIMARY KEY,
+    FormName TEXT,
+    CreatedDate TEXT
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS Questions (
+    QuestionID INTEGER PRIMARY KEY,
+    FormID INTEGER,
+    QuestionText TEXT,
+    QuestionType TEXT,
+    FOREIGN KEY(FormID) REFERENCES Forms(FormID)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS Responses (
+    ResponseID INTEGER PRIMARY KEY,
+    FormID INTEGER,
+    ResponseDate TEXT,
+    FOREIGN KEY(FormID) REFERENCES Forms(FormID)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS Answers (
+    AnswerID INTEGER PRIMARY KEY,
+    ResponseID INTEGER,
+    QuestionID INTEGER,
+    AnswerText TEXT,
+    FOREIGN KEY(ResponseID) REFERENCES Responses(ResponseID),
+    FOREIGN KEY(QuestionID) REFERENCES Questions(QuestionID)
+  )`);
+});
+
+// Routes
+app.post('/forms', (req, res) => {
+  const { FormName, CreatedDate, Questions } = req.body;
+  db.run(`INSERT INTO Forms (FormName, CreatedDate) VALUES (?, ?)`, [FormName, CreatedDate], function (err) {
+    if (err) return res.status(500).send(err.message);
+    const formID = this.lastID;
+    const stmt = db.prepare(`INSERT INTO Questions (FormID, QuestionText, QuestionType) VALUES (?, ?, ?)`);
+    Questions.forEach(q => stmt.run([formID, q.QuestionText, q.QuestionType]));
+    stmt.finalize();
+    res.status(201).json({ FormID: formID });
+  });
+});
+
+app.get('/forms', (req, res) => {
+  db.all(`SELECT * FROM Forms`, [], (err, rows) => {
+    if (err) return res.status(500).send(err.message);
+    res.json(rows);
+  });
+});
+
+app.get('/forms/:id/questions', (req, res) => {
+  const formID = req.params.id;
+  db.all(`SELECT * FROM Questions WHERE FormID = ?`, [formID], (err, rows) => {
+    if (err) return res.status(500).send(err.message);
+    res.json(rows);
+  });
+});
+
+app.post('/responses', (req, res) => {
+  const { FormID, ResponseDate, Answers } = req.body;
+  db.run(`INSERT INTO Responses (FormID, ResponseDate) VALUES (?, ?)`, [FormID, ResponseDate], function (err) {
+    if (err) return res.status(500).send(err.message);
+    const responseID = this.lastID;
+    const stmt = db.prepare(`INSERT INTO Answers (ResponseID, QuestionID, AnswerText) VALUES (?, ?, ?)`);
+    Answers.forEach(a => stmt.run([responseID, a.QuestionID, a.AnswerText]));
+    stmt.finalize();
+    res.status(201).json({ ResponseID: responseID });
+  });
+});
+
+app.get('/responses/:formID', (req, res) => {
+  const formID = req.params.formID;
+  db.all(`SELECT * FROM Responses WHERE FormID = ?`, [formID], (err, rows) => {
+    if (err) return res.status(500).send(err.message);
+    res.json(rows);
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}/`);
+});
